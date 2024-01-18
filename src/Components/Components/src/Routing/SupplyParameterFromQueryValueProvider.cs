@@ -12,8 +12,10 @@ internal sealed class SupplyParameterFromQueryValueProvider(NavigationManager na
     private QueryParameterValueSupplier? _queryParameterValueSupplier;
     private HashSet<ComponentState>? _subscribers;
     private HashSet<ComponentState>? _pendingSubscribers;
-    private bool _isSubscribedToLocationChanges;
+
     private string? _lastUri;
+    private bool _isSubscribedToLocationChanges;
+    private bool _isPendingLocationChangedEventWithoutQueryChange;
 
     public bool IsFixed => false;
 
@@ -22,7 +24,7 @@ internal sealed class SupplyParameterFromQueryValueProvider(NavigationManager na
 
     public object? GetCurrentValue(in CascadingParameterInfo parameterInfo)
     {
-        TryUpdateQueryParameters();
+        TryUpdateUri();
 
         var attribute = (SupplyParameterFromQueryAttribute)parameterInfo.Attribute; // Must be a valid cast because we check in CanSupplyValue
         var queryParameterName = attribute.Name ?? parameterInfo.PropertyName;
@@ -31,7 +33,7 @@ internal sealed class SupplyParameterFromQueryValueProvider(NavigationManager na
 
     public void Subscribe(ComponentState subscriber, in CascadingParameterInfo parameterInfo)
     {
-        if (_pendingSubscribers?.Count > 0 || (TryUpdateQueryParameters() && _isSubscribedToLocationChanges))
+        if (_pendingSubscribers?.Count > 0 || (TryUpdateUri() && _isSubscribedToLocationChanges))
         {
             // This branch is only taken if there's a pending OnLocationChanged event for the current Uri that we're already subscribed to.
             // We'll add the _pendingSubscribers to _subscribers and clear _pendingSubscribers during the upcoming call to OnLocationChanged.
@@ -59,7 +61,7 @@ internal sealed class SupplyParameterFromQueryValueProvider(NavigationManager na
     }
 
     [MemberNotNull(nameof(_queryParameterValueSupplier))]
-    private bool TryUpdateQueryParameters()
+    private bool TryUpdateUri()
     {
         _queryParameterValueSupplier ??= new();
 
@@ -71,20 +73,30 @@ internal sealed class SupplyParameterFromQueryValueProvider(NavigationManager na
         }
 
         var query = GetQueryString(navigationManager.Uri);
-        _queryParameterValueSupplier.ReadParametersFromQuery(query);
+
+        if (_isSubscribedToLocationChanges && query.Span.SequenceEqual(GetQueryString(_lastUri).Span))
+        {
+            _isPendingLocationChangedEventWithoutQueryChange = true;
+        }
+        else
+        {
+            _isPendingLocationChangedEventWithoutQueryChange = false;
+            _queryParameterValueSupplier.ReadParametersFromQuery(query);
+        }
+
         _lastUri = navigationManager.Uri;
         return true;
 
-        static ReadOnlyMemory<char> GetQueryString(string url)
+        static ReadOnlyMemory<char> GetQueryString(string? url)
         {
-            var queryStartPos = url.IndexOf('?');
+            var queryStartPos = url?.IndexOf('?') ?? -1;
 
             if (queryStartPos < 0)
             {
                 return default;
             }
 
-            var queryEndPos = url.IndexOf('#', queryStartPos);
+            var queryEndPos = url!.IndexOf('#', queryStartPos);
             return url.AsMemory(queryStartPos..(queryEndPos < 0 ? url.Length : queryEndPos));
         }
     }
@@ -114,10 +126,15 @@ internal sealed class SupplyParameterFromQueryValueProvider(NavigationManager na
     private void OnLocationChanged(object? sender, LocationChangedEventArgs args)
     {
         Debug.Assert(_subscribers is not null);
-        foreach (var subscriber in _subscribers)
+        if (!_isPendingLocationChangedEventWithoutQueryChange)
         {
-            subscriber.NotifyCascadingValueChanged(ParameterViewLifetime.Unbound);
+            foreach (var subscriber in _subscribers)
+            {
+                subscriber.NotifyCascadingValueChanged(ParameterViewLifetime.Unbound);
+            }
         }
+
+        _isPendingLocationChangedEventWithoutQueryChange = false;
 
         if (_pendingSubscribers is not null)
         {
