@@ -23,6 +23,30 @@ public class CompileTimeIncrementalityTests : RequestDelegateCreationTestBase
     }
 
     [Fact]
+    public async Task MapAction_SameParameterType_DoesNotTriggerUpdate()
+    {
+        var source = @$"app.MapGet(""/hello"", ({typeof(Todo)} todo) => $""stub"");";
+        var updatedSource = @$"app.MapGet(""/hello"", ({typeof(Todo)} todo) => $""stub"");";
+
+        var (result, compilation) = await RunGeneratorAsync(source, updatedSource);
+        var outputSteps = GetRunStepOutputs(result);
+
+        Assert.All(outputSteps, (value) => Assert.Equal(IncrementalStepRunReason.Cached, value.Reason));
+    }
+
+    [Fact]
+    public async Task MapAction_SamePrimitiveParameterType_DoesNotTriggerUpdate()
+    {
+        var source = @"app.MapGet(""/hello"", (string name) => $""Hello {name}!"");";
+        var updatedSource = @"app.MapGet(""/hello"", (string name) => $""Bye {name}!"");";
+
+        var (result, compilation) = await RunGeneratorAsync(source, updatedSource);
+        var outputSteps = GetRunStepOutputs(result);
+
+        Assert.All(outputSteps, (value) => Assert.Equal(IncrementalStepRunReason.Cached, value.Reason));
+    }
+
+    [Fact]
     public async Task MapAction_DifferentRoutePattern_DoesNotTriggerUpdate()
     {
         var source = @"app.MapGet(""/hello"", () => ""Hello world!"");";
