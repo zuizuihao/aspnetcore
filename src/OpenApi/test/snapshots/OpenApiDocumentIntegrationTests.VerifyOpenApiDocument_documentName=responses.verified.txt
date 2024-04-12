@@ -1,0 +1,249 @@
+﻿{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Sample | responses",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/responses/200-add-xml": {
+      "get": {
+        "tags": [
+          "Sample"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "required": [
+                    "id",
+                    "title",
+                    "completed",
+                    "createdAt"
+                  ],
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "format": "int32"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "completed": {
+                      "type": "boolean"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              },
+              "text/xml": {
+                "schema": {
+                  "required": [
+                    "id",
+                    "title",
+                    "completed",
+                    "createdAt"
+                  ],
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "format": "int32"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "completed": {
+                      "type": "boolean"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-aspnetcore-id": "004ab25e-da91-4994-9910-d531c3dafd83"
+      }
+    },
+    "/responses/200-only-xml": {
+      "get": {
+        "tags": [
+          "Sample"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/xml": {
+                "schema": {
+                  "required": [
+                    "id",
+                    "title",
+                    "completed",
+                    "createdAt"
+                  ],
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "format": "int32"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "completed": {
+                      "type": "boolean"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-aspnetcore-id": "9c19067a-262c-4cf6-bf77-d4e8b0756496"
+      }
+    },
+    "/responses/triangle": {
+      "get": {
+        "tags": [
+          "Sample"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "x-aspnetcore-id": "a9d2d751-99bb-4556-ba4c-b9c1fc4e6325"
+      }
+    },
+    "/responses/shape": {
+      "get": {
+        "tags": [
+          "Sample"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "anyOf": [
+                    {
+                      "required": [
+                        "$type"
+                      ],
+                      "type": "object",
+                      "properties": {
+                        "$type": {
+                          "$type": {
+                            "const": "triangle"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "required": [
+                        "$type"
+                      ],
+                      "type": "object",
+                      "properties": {
+                        "$type": {
+                          "$type": {
+                            "const": "square"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-aspnetcore-id": "2b15614d-dac2-4092-a42a-fbea39154b4e"
+      }
+    },
+    "/getbyidandname/{id}/{name}": {
+      "get": {
+        "tags": [
+          "Test"
+        ],
+        "parameters": [
+          {
+            "name": "Id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "minLength": 5,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "x-aspnetcore-id": "272e617a-35ff-4b80-9c1c-56c76be9e3c4"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Sample"
+    },
+    {
+      "name": "Test"
+    }
+  ]
+}

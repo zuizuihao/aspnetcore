@@ -2,7 +2,15 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Concurrent;
+using System.ComponentModel.DataAnnotations;
+using System.IO.Pipelines;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using JsonSchemaMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Json;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 
 namespace Microsoft.AspNetCore.OpenApi;
@@ -12,27 +20,44 @@ namespace Microsoft.AspNetCore.OpenApi;
 /// an OpenAPI document. In particular, this is the API that is used to
 /// interact with the JSON schemas that are managed by a given OpenAPI document.
 /// </summary>
-internal sealed class OpenApiComponentService
+internal sealed class OpenApiComponentService(IOptions<JsonOptions> jsonOptions)
 {
-    private readonly ConcurrentDictionary<Type, OpenApiSchema> _schemas = new()
+    private readonly ConcurrentDictionary<Type, JsonObject> _schemas = new()
     {
         // Pre-populate OpenAPI schemas for well-defined types in ASP.NET Core.
-        [typeof(IFormFile)] = new OpenApiSchema { Type = "string", Format = "binary" },
-        [typeof(IFormFileCollection)] = new OpenApiSchema
+        [typeof(IFormFile)] = new JsonObject { ["type"] = "string", ["format"] = "binary" },
+        [typeof(IFormFileCollection)] = new JsonObject
         {
-            Type = "array",
-            Items = new OpenApiSchema { Type = "string", Format = "binary" }
+            ["type"] = "array",
+            ["items"] = new JsonObject { ["type"] = "string", ["format"] = "binary" }
         },
+        [typeof(Stream)] = new JsonObject { ["type"] = "string", ["format"] = "binary" },
+        [typeof(PipeReader)] = new JsonObject { ["type"] = "string", ["format"] = "binary" },
     };
 
-    internal OpenApiSchema GetOrCreateSchema(Type type)
+    private readonly JsonSerializerOptions _jsonSerializerOptions = jsonOptions.Value.SerializerOptions;
+    private readonly JsonSchemaMapperConfiguration _configuration = new()
     {
-        return _schemas.GetOrAdd(type, _ => CreateSchema());
+        OnSchemaGenerated = (context, schema) =>
+        {
+            schema.ApplyPrimitiveTypesAndFormats(context.TypeInfo.Type);
+            if (context.GetCustomAttributes(typeof(ValidationAttribute)) is { } validationAttributes)
+            {
+                schema.ApplyValidationAttributes(validationAttributes);
+            }
+        }
+    };
+
+    internal OpenApiSchema GetOrCreateSchema(Type type, ApiParameterDescription? parameterDescription = null)
+    {
+        var schemaAsJsonObject = _schemas.GetOrAdd(type, CreateSchema);
+        if (parameterDescription is not null)
+        {
+            schemaAsJsonObject.ApplyParameterInfo(parameterDescription);
+        }
+        return JsonSerializer.Deserialize<OpenApiJsonSchema>(schemaAsJsonObject)?.Schema ?? new OpenApiSchema();
     }
 
-    // TODO: Implement this method to create a schema for a given type.
-    private static OpenApiSchema CreateSchema()
-    {
-        return new OpenApiSchema { Type = "string" };
-    }
+    private JsonObject CreateSchema(Type type)
+        => JsonSchemaMapper.JsonSchemaMapper.GetJsonSchema(_jsonSerializerOptions, type, _configuration);
 }

@@ -1,0 +1,241 @@
+﻿{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Sample | forms",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/forms/form-file": {
+      "post": {
+        "tags": [
+          "Sample"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "resume": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "multipart/form-data": {
+                  "style": "form",
+                  "explode": true
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "x-aspnetcore-id": "05c2b5e3-a337-4d5e-a409-b9673c773518"
+      }
+    },
+    "/forms/form-files": {
+      "post": {
+        "tags": [
+          "Sample"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "files": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                }
+              },
+              "encoding": {
+                "multipart/form-data": {
+                  "style": "form",
+                  "explode": true
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "x-aspnetcore-id": "90c0a078-4e8f-4292-b314-fee4424bd4ca"
+      }
+    },
+    "/forms/form-todo": {
+      "post": {
+        "tags": [
+          "Sample"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "todo": {
+                    "$ref": "#/components/schemas/#/components/schema/Todo"
+                  }
+                }
+              },
+              "encoding": {
+                "multipart/form-data": {
+                  "style": "form",
+                  "explode": true
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "todo": {
+                    "$ref": "#/components/schemas/#/components/schema/Todo"
+                  }
+                }
+              },
+              "encoding": {
+                "application/x-www-form-urlencoded": {
+                  "style": "form",
+                  "explode": true
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "x-aspnetcore-id": "f01c2aef-1619-4472-a6b6-d3925a37f8e3"
+      }
+    },
+    "/getbyidandname/{id}/{name}": {
+      "get": {
+        "tags": [
+          "Test"
+        ],
+        "parameters": [
+          {
+            "name": "Id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "minLength": 5,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "minLength": 5,
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "minLength": 5,
+                  "type": "string"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "minLength": 5,
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "x-aspnetcore-id": "278a96e7-0f73-46cd-8c13-763a1399b709"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "String": {
+        "minLength": 5,
+        "type": "string"
+      },
+      "Int32": {
+        "type": "integer",
+        "format": "int32"
+      },
+      "IFormFileCollection": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "Todo": {
+        "required": [
+          "id",
+          "title",
+          "completed",
+          "createdAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string"
+          },
+          "completed": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "IFormFile": {
+        "type": "string",
+        "format": "binary"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Sample"
+    },
+    {
+      "name": "Test"
+    }
+  ]
+}
