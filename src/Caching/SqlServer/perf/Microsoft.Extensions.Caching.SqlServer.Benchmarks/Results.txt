@@ -1,4 +1,6 @@
-(laptop)
+(using laptop)
+
+original SQL:
 
 |                   Method | PayloadSize | Sliding |      Mean |    Error |   StdDev |    Median |  Gen 0 |  Gen 1 | Gen 2 | Allocated |
 |------------------------- |------------ |-------- |----------:|---------:|---------:|----------:|-------:|-------:|------:|----------:|
@@ -18,3 +20,24 @@
 |       GetConcurrentFixed |        1024 |    True | 234.91 us | 4.453 us | 3.948 us | 235.18 us | 0.7324 |      - |     - |      6 KB |
 |      GetSingleFixedAsync |        1024 |    True | 384.70 us | 1.651 us | 1.463 us | 384.56 us | 0.7102 |      - |     - |      8 KB |
 |  GetConcurrentFixedAsync |        1024 |    True | 222.80 us | 2.079 us | 1.843 us | 223.17 us | 0.9766 |      - |     - |      8 KB |
+
+proposed SQL:
+
+|                   Method | PayloadSize | Sliding |      Mean |    Error |   StdDev |    Median |  Gen 0 |  Gen 1 | Gen 2 | Allocated |
+|------------------------- |------------ |-------- |----------:|---------:|---------:|----------:|-------:|-------:|------:|----------:|
+|          GetSingleRandom |        1024 |   False | 216.43 us | 3.175 us | 2.651 us | 215.69 us | 0.4883 |      - |     - |      6 KB |
+|      GetConcurrentRandom |        1024 |   False |  23.01 us | 0.421 us | 0.630 us |  22.97 us | 0.7324 | 0.1526 |     - |      6 KB |
+|     GetSingleRandomAsync |        1024 |   False | 244.33 us | 1.675 us | 1.307 us | 244.54 us | 0.4883 |      - |     - |      8 KB |
+| GetConcurrentRandomAsync |        1024 |   False |  25.25 us | 0.502 us | 1.240 us |  25.30 us | 0.9460 | 0.1831 |     - |      8 KB |
+|           GetSingleFixed |        1024 |   False | 210.56 us | 1.116 us | 0.871 us | 210.65 us | 0.4883 |      - |     - |      6 KB |
+|       GetConcurrentFixed |        1024 |   False |  27.26 us | 0.913 us | 2.692 us |  28.63 us | 0.7629 | 0.1831 |     - |      6 KB |
+|      GetSingleFixedAsync |        1024 |   False | 243.61 us | 3.159 us | 2.800 us | 244.16 us | 0.7324 |      - |     - |      8 KB |
+|  GetConcurrentFixedAsync |        1024 |   False |  22.64 us | 0.441 us | 0.412 us |  22.72 us | 0.9460 | 0.1831 |     - |      8 KB |
+|          GetSingleRandom |        1024 |    True | 407.28 us | 3.825 us | 3.194 us | 408.20 us | 0.7102 |      - |     - |      6 KB |
+|      GetConcurrentRandom |        1024 |    True |  76.05 us | 2.314 us | 6.822 us |  76.40 us | 0.7935 | 0.1831 |     - |      6 KB |
+|     GetSingleRandomAsync |        1024 |    True | 421.87 us | 3.038 us | 2.693 us | 422.38 us | 0.7813 |      - |     - |      8 KB |
+| GetConcurrentRandomAsync |        1024 |    True |  60.63 us | 1.743 us | 5.111 us |  59.22 us | 0.9155 | 0.1831 |     - |      8 KB |
+|           GetSingleFixed |        1024 |    True | 393.36 us | 4.385 us | 3.887 us | 393.47 us | 0.7102 |      - |     - |      6 KB |
+|       GetConcurrentFixed |        1024 |    True |  76.29 us | 1.252 us | 2.352 us |  75.63 us | 0.7324 | 0.1221 |     - |      6 KB |
+|      GetSingleFixedAsync |        1024 |    True | 417.44 us | 2.355 us | 1.966 us | 417.68 us | 0.7813 |      - |     - |      8 KB |
+|  GetConcurrentFixedAsync |        1024 |    True |  73.69 us | 0.618 us | 0.578 us |  73.69 us | 0.8545 | 0.1221 |     - |      8 KB |

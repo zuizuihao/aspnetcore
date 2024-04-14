@@ -218,7 +218,7 @@ internal sealed class DatabaseOperations : IDatabaseOperations
             {
                 if (reader.Read())
                 {
-                    if (includeValue)
+                    if (includeValue && !reader.IsDBNull(Columns.Indexes.CacheItemValueIndex))
                     {
                         value = reader.GetFieldValue<byte[]>(Columns.Indexes.CacheItemValueIndex);
                     }
@@ -265,7 +265,7 @@ internal sealed class DatabaseOperations : IDatabaseOperations
             {
                 if (await reader.ReadAsync(token).ConfigureAwait(false))
                 {
-                    if (includeValue)
+                    if (includeValue && !reader.IsDBNull(Columns.Indexes.CacheItemValueIndex))
                     {
                         value = await reader.GetFieldValueAsync<byte[]>(Columns.Indexes.CacheItemValueIndex, token).ConfigureAwait(false);
                     }
