@@ -1,0 +1,20 @@
+(laptop)
+
+|                   Method | PayloadSize | Sliding |      Mean |    Error |   StdDev |    Median |  Gen 0 |  Gen 1 | Gen 2 | Allocated |
+|------------------------- |------------ |-------- |----------:|---------:|---------:|----------:|-------:|-------:|------:|----------:|
+|          GetSingleRandom |        1024 |   False | 192.31 us | 2.470 us | 2.189 us | 191.92 us | 0.4883 |      - |     - |      6 KB |
+|      GetConcurrentRandom |        1024 |   False |  19.43 us | 0.373 us | 0.349 us |  19.36 us | 0.7324 | 0.1221 |     - |      6 KB |
+|     GetSingleRandomAsync |        1024 |   False | 221.50 us | 3.127 us | 6.099 us | 219.01 us | 0.7324 |      - |     - |      8 KB |
+| GetConcurrentRandomAsync |        1024 |   False |  19.56 us | 0.342 us | 0.286 us |  19.45 us | 0.9766 | 0.1831 |     - |      8 KB |
+|           GetSingleFixed |        1024 |   False | 196.28 us | 3.700 us | 3.959 us | 197.20 us | 0.4883 |      - |     - |      6 KB |
+|       GetConcurrentFixed |        1024 |   False |  39.78 us | 0.778 us | 0.799 us |  39.66 us | 0.7324 | 0.1221 |     - |      6 KB |
+|      GetSingleFixedAsync |        1024 |   False | 215.72 us | 0.651 us | 0.577 us | 215.80 us | 0.7324 |      - |     - |      8 KB |
+|  GetConcurrentFixedAsync |        1024 |   False |  39.13 us | 0.377 us | 0.334 us |  39.24 us | 0.9766 | 0.1831 |     - |      8 KB |
+|          GetSingleRandom |        1024 |    True | 359.39 us | 1.798 us | 2.903 us | 359.29 us | 0.6510 |      - |     - |      6 KB |
+|      GetConcurrentRandom |        1024 |    True |  64.68 us | 2.567 us | 7.530 us |  65.28 us | 0.7324 | 0.1831 |     - |      6 KB |
+|     GetSingleRandomAsync |        1024 |    True | 386.99 us | 2.679 us | 2.375 us | 387.71 us | 0.7102 |      - |     - |      8 KB |
+| GetConcurrentRandomAsync |        1024 |    True |  57.33 us | 2.834 us | 8.267 us |  55.82 us | 0.9766 | 0.1831 |     - |      8 KB |
+|           GetSingleFixed |        1024 |    True | 364.00 us | 6.256 us | 5.545 us | 364.63 us | 0.7102 |      - |     - |      6 KB |
+|       GetConcurrentFixed |        1024 |    True | 234.91 us | 4.453 us | 3.948 us | 235.18 us | 0.7324 |      - |     - |      6 KB |
+|      GetSingleFixedAsync |        1024 |    True | 384.70 us | 1.651 us | 1.463 us | 384.56 us | 0.7102 |      - |     - |      8 KB |
+|  GetConcurrentFixedAsync |        1024 |    True | 222.80 us | 2.079 us | 1.843 us | 223.17 us | 0.9766 |      - |     - |      8 KB |
