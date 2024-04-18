@@ -22,7 +22,8 @@ using WellKnownType = WellKnownTypeData.WellKnownType;
 public partial class MvcAnalyzer : DiagnosticAnalyzer
 {
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(
-        DiagnosticDescriptors.AmbiguousActionRoute
+        DiagnosticDescriptors.AmbiguousActionRoute,
+        DiagnosticDescriptors.AuthorizeAttributeOverridden
     );
 
     public override void Initialize(AnalysisContext context)
@@ -49,6 +50,8 @@ public partial class MvcAnalyzer : DiagnosticAnalyzer
                         actionRoutes = new List<ActionRoute>();
                     }
 
+                    VisitActions(context, wellKnownTypes, routeUsageCache, namedTypeSymbol, actionRoutes);
+
                     RoutePatternTree? controllerRoutePattern = null;
                     var controllerRouteAttribute = namedTypeSymbol.GetAttributes(wellKnownTypes.Get(WellKnownType.Microsoft_AspNetCore_Mvc_RouteAttribute), inherit: true).FirstOrDefault();
                     if (controllerRouteAttribute != null)
@@ -60,8 +63,6 @@ public partial class MvcAnalyzer : DiagnosticAnalyzer
                         }
                     }
 
-                    PopulateActionRoutes(context, wellKnownTypes, routeUsageCache, namedTypeSymbol, actionRoutes);
-
                     DetectAmbiguousActionRoutes(context, wellKnownTypes, controllerRoutePattern, actionRoutes);
 
                     // Return to the pool.
@@ -72,38 +73,44 @@ public partial class MvcAnalyzer : DiagnosticAnalyzer
         });
     }
 
-    private static void PopulateActionRoutes(SymbolAnalysisContext context, WellKnownTypes wellKnownTypes, RouteUsageCache routeUsageCache, INamedTypeSymbol namedTypeSymbol, List<ActionRoute> actionRoutes)
+    private static void VisitActions(SymbolAnalysisContext context, WellKnownTypes wellKnownTypes, RouteUsageCache routeUsageCache, INamedTypeSymbol controllerSymbol, List<ActionRoute> actionRoutes)
     {
-        foreach (var member in namedTypeSymbol.GetMembers())
+        foreach (var member in controllerSymbol.GetMembers())
         {
             if (member is IMethodSymbol methodSymbol &&
                 MvcDetector.IsAction(methodSymbol, wellKnownTypes))
             {
-                // [Route("xxx")] attributes don't have a HTTP method and instead use the HTTP methods of other attributes.
-                // For example, [HttpGet] + [HttpPost] + [Route("xxx")] means the route "xxx" is combined with the HTTP methods.
-                var unroutedHttpMethods = GetUnroutedMethodHttpMethods(wellKnownTypes, methodSymbol);
-
-                foreach (var attribute in methodSymbol.GetAttributes())
-                {
-                    if (attribute.AttributeClass is null || !wellKnownTypes.IsType(attribute.AttributeClass, RouteAttributeTypes, out var match))
-                    {
-                        continue;
-                    }
-
-                    var routeUsage = GetRouteUsageModel(attribute, routeUsageCache, context.CancellationToken);
-                    if (routeUsage is null)
-                    {
-                        continue;
-                    }
-
-                    // [Route] uses unrouted HTTP verb attributes for its HTTP methods.
-                    var methods = match.Value is WellKnownType.Microsoft_AspNetCore_Mvc_RouteAttribute
-                        ? unroutedHttpMethods
-                        : ImmutableArray.Create(GetHttpMethod(match.Value)!);
-
-                    actionRoutes.Add(new ActionRoute(methodSymbol, routeUsage, methods));
-                }
+                PopulateActionRoutes(context, wellKnownTypes, routeUsageCache, actionRoutes, methodSymbol);
+                DetectOverriddenAuthorizeAttribute(context, wellKnownTypes, controllerSymbol, methodSymbol);
             }
+        }
+    }
+
+    private static void PopulateActionRoutes(SymbolAnalysisContext context, WellKnownTypes wellKnownTypes, RouteUsageCache routeUsageCache, List<ActionRoute> actionRoutes, IMethodSymbol methodSymbol)
+    {
+        // [Route("xxx")] attributes don't have a HTTP method and instead use the HTTP methods of other attributes.
+        // For example, [HttpGet] + [HttpPost] + [Route("xxx")] means the route "xxx" is combined with the HTTP methods.
+        var unroutedHttpMethods = GetUnroutedMethodHttpMethods(wellKnownTypes, methodSymbol);
+
+        foreach (var attribute in methodSymbol.GetAttributes())
+        {
+            if (attribute.AttributeClass is null || !wellKnownTypes.IsType(attribute.AttributeClass, RouteAttributeTypes, out var match))
+            {
+                continue;
+            }
+
+            var routeUsage = GetRouteUsageModel(attribute, routeUsageCache, context.CancellationToken);
+            if (routeUsage is null)
+            {
+                continue;
+            }
+
+            // [Route] uses unrouted HTTP verb attributes for its HTTP methods.
+            var methods = match.Value is WellKnownType.Microsoft_AspNetCore_Mvc_RouteAttribute
+                ? unroutedHttpMethods
+                : ImmutableArray.Create(GetHttpMethod(match.Value)!);
+
+            actionRoutes.Add(new ActionRoute(methodSymbol, routeUsage, methods));
         }
     }
 

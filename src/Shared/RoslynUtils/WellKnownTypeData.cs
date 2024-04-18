@@ -110,6 +110,8 @@ internal static class WellKnownTypeData
         Microsoft_AspNetCore_Mvc_ModelBinding_EmptyBodyBehavior,
         Microsoft_AspNetCore_Authorization_AllowAnonymousAttribute,
         Microsoft_AspNetCore_Authorization_AuthorizeAttribute,
+        Microsoft_AspNetCore_Authorization_IAllowAnonymous,
+        Microsoft_AspNetCore_Authorization_IAuthorizeData,
         Microsoft_Extensions_DependencyInjection_PolicyServiceCollectionExtensions,
         Microsoft_Extensions_DependencyInjection_FromKeyedServicesAttribute,
         Microsoft_AspNetCore_Authorization_AuthorizationOptions
@@ -220,6 +222,8 @@ internal static class WellKnownTypeData
         "Microsoft.AspNetCore.Mvc.ModelBinding.EmptyBodyBehavior",
         "Microsoft.AspNetCore.Authorization.AllowAnonymousAttribute",
         "Microsoft.AspNetCore.Authorization.AuthorizeAttribute",
+        "Microsoft.AspNetCore.Authorization.IAllowAnonymous",
+        "Microsoft.AspNetCore.Authorization.IAuthorizeData",
         "Microsoft.Extensions.DependencyInjection.PolicyServiceCollectionExtensions",
         "Microsoft.Extensions.DependencyInjection.FromKeyedServicesAttribute",
         "Microsoft.AspNetCore.Authorization.AuthorizationOptions"
