@@ -20,27 +20,45 @@ public partial class MvcAnalyzer
 {
     private static void DetectOverriddenAuthorizeAttribute(SymbolAnalysisContext context, WellKnownTypes wellKnownTypes, INamedTypeSymbol controllerSymbol, IMethodSymbol actionSymbol)
     {
-        var authorizeLocation = GetAttributeLocation(context, wellKnownTypes, actionSymbol, WellKnownType.Microsoft_AspNetCore_Authorization_IAuthorizeData);
-        if (authorizeLocation is null)
+        var authAttributeData = actionSymbol.GetAttributes(wellKnownTypes.Get(WellKnownType.Microsoft_AspNetCore_Authorization_IAuthorizeData)).FirstOrDefault();
+        var authAttributeLocation = authAttributeData?.ApplicationSyntaxReference?.GetSyntax(context.CancellationToken).GetLocation();
+        if (authAttributeLocation is null)
         {
             return;
         }
 
-        var allowAnonymousLocation = GetAttributeLocation(context, wellKnownTypes, controllerSymbol, WellKnownType.Microsoft_AspNetCore_Authorization_IAllowAnonymous);
-        if (allowAnonymousLocation is null)
+        var anonymousControllerType = GetNearestTypeWithInheritedAttribute(controllerSymbol, wellKnownTypes.Get(WellKnownType.Microsoft_AspNetCore_Authorization_IAllowAnonymous));
+        if (anonymousControllerType is null)
         {
             return;
         }
 
         context.ReportDiagnostic(Diagnostic.Create(
             DiagnosticDescriptors.AuthorizeAttributeOverridden,
-            authorizeLocation,
-            controllerSymbol.Name));
+            authAttributeLocation,
+            anonymousControllerType.Name));
     }
 
-    private static Location? GetAttributeLocation(SymbolAnalysisContext context, WellKnownTypes wellKnownTypes, ISymbol symbol, WellKnownType attributeType)
+    private static ITypeSymbol? GetNearestTypeWithInheritedAttribute(ITypeSymbol typeSymbol, ITypeSymbol attribute)
     {
-        var attributeData = symbol.GetAttributes(wellKnownTypes.Get(attributeType)).LastOrDefault();
-        return attributeData?.ApplicationSyntaxReference?.GetSyntax(context.CancellationToken).GetLocation();
+        foreach (var type in GetTypeHierarchy(typeSymbol))
+        {
+            if (type.GetAttributes(attribute).Any())
+            {
+                return type;
+            }
+        }
+
+        return null;
+    }
+
+    private static IEnumerable<ITypeSymbol> GetTypeHierarchy(ITypeSymbol? typeSymbol)
+    {
+        while (typeSymbol != null)
+        {
+            yield return typeSymbol;
+
+            typeSymbol = typeSymbol.BaseType;
+        }
     }
 }

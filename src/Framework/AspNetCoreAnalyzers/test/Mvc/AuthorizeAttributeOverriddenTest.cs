@@ -17,17 +17,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 
+WebApplication.Create().Run();
+
 [AllowAnonymous]
-public class WeatherForecastController : ControllerBase
+public class WeatherForecastController
 {
     [{|#0:Authorize|}]
     public object Get() => new object();
-}
-internal class Program
-{
-    static void Main(string[] args)
-    {
-    }
 }
 ";
 
