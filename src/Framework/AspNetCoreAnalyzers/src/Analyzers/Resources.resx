@@ -316,7 +316,7 @@
     <value>Use AddAuthorizationBuilder</value>
   </data>
   <data name="Analyzer_AuthorizeAttributeOverridden_Message" xml:space="preserve">
-    <value>This [Authorize] attribute is overridden by an [AllowAnonymous] attribute on '{0}' or its base type.</value>
+    <value>This [Authorize] attribute is overridden by an [AllowAnonymous] attribute on '{0}'</value>
   </data>
   <data name="Analyzer_AuthorizeAttributeOverridden_Title" xml:space="preserve">
     <value>[Authorize] attribute overridden</value>

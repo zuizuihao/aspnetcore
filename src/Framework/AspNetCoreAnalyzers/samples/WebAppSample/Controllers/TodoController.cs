@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #region Namespaces
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.Logging;
 #endregion
 
 [Route("api/[controller]")]
+[AllowAnonymous]
 public class TodoController
 {
     private readonly DbContext _dbContext;
@@ -17,6 +19,7 @@ public class TodoController
     public TodoController(DbContext dbContext) => _dbContext = dbContext;
 
     [HttpGet("{id}")]
+    [Authorize]
     public Todo Get(int id) => _dbContext.Todos.Find(id);
 
     [HttpPut]

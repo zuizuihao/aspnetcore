@@ -220,7 +220,7 @@ internal static class DiagnosticDescriptors
         new LocalizableResourceString(nameof(Resources.Analyzer_AuthorizeAttributeOverridden_Title), Resources.ResourceManager, typeof(Resources)),
         new LocalizableResourceString(nameof(Resources.Analyzer_AuthorizeAttributeOverridden_Message), Resources.ResourceManager, typeof(Resources)),
         "Usage",
-        DiagnosticSeverity.Info,
+        DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
         helpLinkUri: "https://aka.ms/aspnet/analyzers");
 }

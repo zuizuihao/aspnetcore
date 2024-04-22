@@ -42,7 +42,7 @@ public partial class MvcAnalyzer : DiagnosticAnalyzer
             context.RegisterSymbolAction(context =>
             {
                 var namedTypeSymbol = (INamedTypeSymbol)context.Symbol;
-                if (MvcDetector.IsController(namedTypeSymbol, wellKnownTypes))
+                if (MvcDetector.IsController(namedTypeSymbol, wellKnownTypes) || true)
                 {
                     // Pool and reuse lists for each block.
                     if (!concurrentQueue.TryDequeue(out var actionRoutes))
