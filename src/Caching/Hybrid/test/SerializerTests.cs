@@ -93,13 +93,17 @@ public class SerializerTests(ITestOutputHelper Log)
         var bytes = await l2.GetAsync($"Simple_{id}") ?? [];
         Log.WriteLine("simple:");
         Log.WriteLine(Encoding.UTF8.GetString(bytes));
-        Log.WriteLine(BitConverter.ToString(bytes));
+        var hex = BitConverter.ToString(bytes);
+        Log.WriteLine(hex);
+        Assert.Equal("7B-22-49-64-22-3A-34-32-2C-22-4E-61-6D-65-22-3A-22-61-62-63-22-7D", hex);
         Log.WriteLine("");
 
         bytes = await l2.GetAsync($"Protobuf_{id}") ?? [];
         Log.WriteLine("protobuf:");
         Log.WriteLine(Encoding.UTF8.GetString(bytes));
-        Log.WriteLine(BitConverter.ToString(bytes));
+        hex = BitConverter.ToString(bytes);
+        Log.WriteLine(hex);
+        Assert.Equal("08-2A-12-03-61-62-63", hex);
         Log.WriteLine("");
 
         /* sample output:

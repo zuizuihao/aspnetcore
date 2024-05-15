@@ -43,14 +43,7 @@ namespace Microsoft.Extensions.Caching.Hybrid.Tests
             => _parser.ParseFrom(source);
 
         void IHybridCacheSerializer<T>.Serialize(T value, IBufferWriter<byte> target)
-        {
-            // get a buffer from the writer and serialize to it, noting that
-            // Google.Protobuf demands this to be exact, not oversized
-            var size = value.CalculateSize();
-            var span = target.GetSpan(size).Slice(0, size); // slice: for exact size
-            value.WriteTo(span);
-            target.Advance(size);
-        }
+            => value.WriteTo(target);
     }
 
     /// <summary>
