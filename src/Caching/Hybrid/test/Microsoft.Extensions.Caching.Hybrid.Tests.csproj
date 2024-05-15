@@ -7,10 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Protos\sample.proto" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="Microsoft.Extensions.Caching.Hybrid" />
     <Reference Include="Microsoft.Extensions.Configuration.Json" />
     <Reference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
     <Reference Include="Microsoft.Extensions.Caching.SqlServer" />
+    <Reference Include="Grpc.Tools" />
+    <Reference Include="Google.Protobuf" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,4 +25,7 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Protobuf Include="Protos\sample.proto" GrpcServices="Server" />
+  </ItemGroup>
 </Project>

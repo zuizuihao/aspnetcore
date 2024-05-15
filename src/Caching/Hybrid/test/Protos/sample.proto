@@ -1,0 +1,12 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+syntax = "proto3";
+
+option csharp_namespace = "BranchMicrosoft.Extensions.Caching.Hybrid.Tests.Protos";
+
+message SomeMessage
+{
+    int32 id = 1;
+    string name = 2;
+}
