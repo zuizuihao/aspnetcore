@@ -43,11 +43,7 @@ public class SerializerTests(ITestOutputHelper Log)
             svc.AddHybridCache().AddGoogleProtobuf<SomeMessage>();
         }
 
-        svc.AddStackExchangeRedisCache(options =>
-        {
-            // use local Garnet instance for L2
-            options.Configuration = "127.0.0.1:3278";
-        });
+        svc.AddDummyL2();
         using var provider = svc.BuildServiceProvider();
 
         // normally this would be injected simply by having a
@@ -144,5 +140,4 @@ public class SerializerTests(ITestOutputHelper Log)
 
     private static ValueTask<SimpleMessage> GetSomeSimpleMessageAsync(int id, CancellationToken token)
         => new(new SimpleMessage { Id = id, Name = "abc" });
-
 }
