@@ -25,10 +25,10 @@ partial class DefaultHybridCache
             // perspective.
             _key = key;
             _flags = flags;
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            _hashCode = System.HashCode.Combine(key, flags);
+#if NETCOREAPP2_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            _hashCode = key.GetHashCode(StringComparison.Ordinal) ^ (int)flags;
 #else
-            _hashCode = key.GetHashCode() ^ (int)flags;
+            _hashCode = StringComparer.Ordinal.GetHashCode(key) ^ (int)flags;
 #endif
         }
 
@@ -39,7 +39,7 @@ partial class DefaultHybridCache
         // this is a constant-time operation against a known value
         internal int HashCode => _hashCode;
 
-        public bool Equals(StampedeKey other) => _flags == other._flags & _key == other._key;
+        public bool Equals(StampedeKey other) => _flags == other._flags & string.Equals(_key, other._key, StringComparison.Ordinal);
 
         public override bool Equals([NotNullWhen(true)] object? obj)
             => obj is StampedeKey other && Equals(other);

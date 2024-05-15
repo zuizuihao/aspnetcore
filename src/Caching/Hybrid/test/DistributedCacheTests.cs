@@ -15,33 +15,19 @@ namespace Microsoft.Extensions.Caching.Hybrid.Tests;
 /// <summary>
 /// Validate over-arching expectations of DC implementations, in particular behaviour re IBufferDistributedCache added for HybridCache
 /// </summary>
-public abstract class DistributedCacheTests
+public abstract class DistributedCacheTests(ITestOutputHelper log)
 {
-    public DistributedCacheTests(ITestOutputHelper log) => Log = log;
-    protected ITestOutputHelper Log { get; }
+    protected ITestOutputHelper Log { get; } = log;
+
     protected abstract ValueTask ConfigureAsync(IServiceCollection services);
     protected abstract bool CustomClockSupported { get; }
 
-    protected FakeTime Clock { get; } = new();
-
-    protected class FakeTime : TimeProvider, ISystemClock
-    {
-        private DateTimeOffset _now = DateTimeOffset.UtcNow;
-        public void Reset() => _now = DateTimeOffset.UtcNow;
-
-        DateTimeOffset ISystemClock.UtcNow => _now;
-
-        public override DateTimeOffset GetUtcNow() => _now;
-
-        public void Add(TimeSpan delta) => _now += delta;
-    }
+    protected TestTimeProvider Clock { get; } = new();
 
     private async ValueTask<IServiceCollection> InitAsync()
     {
-        Clock.Reset();
         var services = new ServiceCollection();
-        services.AddSingleton<TimeProvider>(Clock);
-        services.AddSingleton<ISystemClock>(Clock);
+        Clock.ResetAndAddTo(services);
         await ConfigureAsync(services);
         return services;
     }
@@ -165,8 +151,7 @@ public abstract class DistributedCacheTests
     [InlineData(16 * 1024, SequenceKind.MultiSegment)]
     public async Task ReadOnlySequenceBufferRoundtrip(int size, SequenceKind kind)
     {
-        var cache = (await InitAsync()).BuildServiceProvider().GetService<IDistributedCache>() as IBufferDistributedCache;
-        if (cache is null)
+        if ((await InitAsync()).BuildServiceProvider().GetService<IDistributedCache>() is not IBufferDistributedCache cache)
         {
             Log.WriteLine("Cache is not available or does not support IBufferDistributedCache");
             return; // inconclusive
@@ -225,8 +210,7 @@ public abstract class DistributedCacheTests
     [InlineData(16 * 1024, SequenceKind.MultiSegment)]
     public async Task ReadOnlySequenceBufferRoundtripAsync(int size, SequenceKind kind)
     {
-        var cache = (await InitAsync()).BuildServiceProvider().GetService<IDistributedCache>() as IBufferDistributedCache;
-        if (cache is null)
+        if ((await InitAsync()).BuildServiceProvider().GetService<IDistributedCache>() is not IBufferDistributedCache cache)
         {
             Log.WriteLine("Cache is not available or does not support IBufferDistributedCache");
             return; // inconclusive

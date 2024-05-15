@@ -34,13 +34,13 @@ public class SerializerTests(ITestOutputHelper Log)
         {
             // serializer factory configuration (auto-detect *all*
             // Google.Protobuf types)
-            svc.AddHybridCache().WithGoogleProtobuf();
+            svc.AddHybridCache().AddGoogleProtobuf();
         }
         else
         {
             // single serializer configuration (only applies to
             // this specific message type)
-            svc.AddHybridCache().WithGoogleProtobuf<SomeMessage>();
+            svc.AddHybridCache().AddGoogleProtobuf<SomeMessage>();
         }
 
         svc.AddStackExchangeRedisCache(options =>
@@ -55,6 +55,9 @@ public class SerializerTests(ITestOutputHelper Log)
         var cache = provider.GetRequiredService<HybridCache>();
 
         int id = 42;
+
+        // reset
+        await cache.RemoveKeysAsync([$"Simple_{id}", $"Protobuf_{id}"]);
 
         // fetch via HybridCache
         var simpleMessage = await cache.GetOrCreateAsync(

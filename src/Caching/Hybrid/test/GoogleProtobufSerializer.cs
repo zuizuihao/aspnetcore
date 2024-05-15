@@ -16,10 +16,10 @@ namespace Microsoft.Extensions.DependencyInjection
     /// </summary>
     public static class GoogleProtobufHybridCacheExtensions
     {
-        public static IHybridCacheBuilder WithGoogleProtobuf<T>(this IHybridCacheBuilder builder)
+        public static IHybridCacheBuilder AddGoogleProtobuf<T>(this IHybridCacheBuilder builder)
             where T : IMessage<T> => builder.WithSerializer<T, GoogleProtobufSerializer<T>>();
 
-        public static IHybridCacheBuilder WithGoogleProtobuf(this IHybridCacheBuilder builder)
+        public static IHybridCacheBuilder AddGoogleProtobuf(this IHybridCacheBuilder builder)
             => builder.WithSerializerFactory<GoogleProtobufSerializerFactory>();
     }
 }
@@ -51,7 +51,9 @@ namespace Microsoft.Extensions.Caching.Hybrid.Tests
     /// </summary>
     public class GoogleProtobufSerializerFactory : IHybridCacheSerializerFactory
     {
+#pragma warning disable CS0436 // ambiguous [NotNullWhen(...)] because of proj refs
         public bool TryCreateSerializer<T>([NotNullWhen(true)] out IHybridCacheSerializer<T>? serializer)
+#pragma warning restore CS0436 // ambiguous [NotNullWhen(...)] because of proj refs
         {
             // all Google.Protobuf types implement IMessage<T> : IMessage; check for IMessage first,
             // since we can do that without needing to use MakeGenericType for that; note that

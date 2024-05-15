@@ -28,6 +28,7 @@ internal sealed partial class DefaultHybridCache : HybridCache
     private readonly HybridCacheOptions _options;
     private readonly ILogger _logger;
     private readonly CacheFeatures _features; // used to avoid constant type-testing
+    private readonly TimeProvider _clock;
 
     private readonly HybridCacheEntryFlags _hardFlags; // *always* present (for example, because no L2)
     private readonly HybridCacheEntryFlags _defaultFlags; // note this already includes hardFlags
@@ -49,6 +50,8 @@ internal sealed partial class DefaultHybridCache : HybridCache
 
     internal CacheFeatures GetFeatures() => _features;
 
+    private DateTimeOffset Now() => _clock.GetUtcNow();
+
     // used to restrict features in test suite
     internal void DebugRemoveFeatures(CacheFeatures features) => Unsafe.AsRef(in _features) &= ~features;
 
@@ -58,7 +61,7 @@ internal sealed partial class DefaultHybridCache : HybridCache
         _localCache = services.GetRequiredService<IMemoryCache>();
         _options = options.Value;
         _logger = services.GetService<ILoggerFactory>()?.CreateLogger(typeof(HybridCache)) ?? NullLogger.Instance;
-
+        _clock = services.GetService<TimeProvider>() ?? TimeProvider.System;
         _backendCache = services.GetService<IDistributedCache>(); // note optional
 
         // ignore L2 if it is really just the same L1, wrapped
@@ -149,9 +152,6 @@ internal sealed partial class DefaultHybridCache : HybridCache
         _localCache.Remove(key);
         return _backendCache is null ? default : new(_backendCache.RemoveAsync(key, token));
     }
-
-    public override ValueTask RemoveTagAsync(string tag, CancellationToken token = default)
-        => default; // tags not yet implemented
 
     public override ValueTask SetAsync<T>(string key, T value, HybridCacheEntryOptions? options = null, IReadOnlyCollection<string>? tags = null, CancellationToken token = default)
     {
