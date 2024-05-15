@@ -4,11 +4,8 @@
 using System.Globalization;
 using System.Text;
 using BranchMicrosoft.Extensions.Caching.Hybrid.Tests.Protos;
-using Castle.Core.Logging;
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Xunit.Abstractions;
 
 namespace Microsoft.Extensions.Caching.Hybrid.Tests;
