@@ -16,6 +16,7 @@
     <IsAspNetCoreApp>false</IsAspNetCoreApp>
     <IsPackable>true</IsPackable>
     <IsShipping>true</IsShipping>
+    <AllowUnsafeBlocks Condition="'$(TargetFramework)' == '$(DefaultNetFxTargetFramework)' or '$(TargetFramework)' == 'netstandard2.0'">true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>

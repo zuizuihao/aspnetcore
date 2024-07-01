@@ -42,8 +42,11 @@ public class SerializerTests(ITestOutputHelper Log)
             // this specific message type)
             svc.AddHybridCache().AddGoogleProtobuf<SomeMessage>();
         }
-
-        svc.AddDummyL2();
+        svc.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = "127.0.0.1:6379";
+        });
+        //svc.AddDummyL2();
         using var provider = svc.BuildServiceProvider();
 
         // normally this would be injected simply by having a
