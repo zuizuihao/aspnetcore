@@ -111,8 +111,40 @@ internal sealed partial class DefaultHybridCache : HybridCache
     private HybridCacheEntryFlags GetEffectiveFlags(HybridCacheEntryOptions? options)
         => (options?.Flags | _hardFlags) ?? _defaultFlags;
 
+    private static void Validate(string key, IReadOnlyCollection<string>? tags)
+    {
+        ValidateKeyOrTag(key, nameof(key));
+        if (tags is not null)
+        {
+            foreach (var tag in tags)
+            {
+                ValidateKeyOrTag(tag, nameof(tag));
+            }
+        }
+    }
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2249:Consider using 'string.Contains' instead of 'string.IndexOf'", Justification = "Multi-targeting makes impractical")]
+    private static void ValidateKeyOrTag(string value, string paramName)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            ThrowNullOrWhiteSpace(paramName);
+        }
+        if (value.IndexOf('\0') >= 0)
+        {
+            ThrowInvalid(paramName);
+        }
+
+        static void ThrowNullOrWhiteSpace(string paramName)
+            => throw new ArgumentException("Value must be non-empty", paramName);
+
+        static void ThrowInvalid(string paramName)
+            => throw new ArgumentException("Value contains invalid token", paramName);
+    }
+
     public override ValueTask<T> GetOrCreateAsync<TState, T>(string key, TState state, Func<TState, CancellationToken, ValueTask<T>> underlyingDataCallback, HybridCacheEntryOptions? options = null, IReadOnlyCollection<string>? tags = null, CancellationToken token = default)
     {
+        Validate(key, tags);
+
         var canBeCanceled = token.CanBeCanceled;
         if (canBeCanceled)
         {
@@ -149,12 +181,16 @@ internal sealed partial class DefaultHybridCache : HybridCache
 
     public override ValueTask RemoveKeyAsync(string key, CancellationToken token = default)
     {
+        ValidateKeyOrTag(key, nameof(key));
+
         _localCache.Remove(key);
         return _backendCache is null ? default : new(_backendCache.RemoveAsync(key, token));
     }
 
     public override ValueTask SetAsync<T>(string key, T value, HybridCacheEntryOptions? options = null, IReadOnlyCollection<string>? tags = null, CancellationToken token = default)
     {
+        Validate(key, tags);
+
         // since we're forcing a write: disable L1+L2 read; we'll use a direct pass-thru of the value as the callback, to reuse all the code;
         // note also that stampede token is not shared with anyone else
         var flags = GetEffectiveFlags(options) | (HybridCacheEntryFlags.DisableLocalCacheRead | HybridCacheEntryFlags.DisableDistributedCacheRead);
