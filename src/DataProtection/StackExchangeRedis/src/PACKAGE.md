@@ -22,6 +22,10 @@ builder.Services.AddDataProtection()
     .PersistKeysToStackExchangeRedis(redis, "DataProtection-Keys");
 ```
 
+## Redis Data Persistence
+
+Only Redis versions supporting [Redis Data Persistence](https://learn.microsoft.com/azure/azure-cache-for-redis/cache-how-to-premium-persistence) should be used to store keys. [Azure Blob storage](https://learn.microsoft.com/azure/storage/blobs/storage-blobs-introduction) is persistent and can be used to store keys. For more information, see [this GitHub issue](https://github.com/dotnet/AspNetCore/issues/13476).
+
 ## Additional Documentation
 
 For additional documentation and examples, refer to the [official documentation](https://learn.microsoft.com/aspnet/core/security/data-protection/implementation/key-storage-providers#redis) on the Redis key storage provider.
