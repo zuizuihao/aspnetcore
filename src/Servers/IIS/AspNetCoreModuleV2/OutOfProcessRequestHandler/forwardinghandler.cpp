@@ -815,11 +815,12 @@ FORWARDING_HANDLER::GetHeaders(
         (_wcsicmp(m_pW3Context->GetUser()->GetAuthenticationType(), L"negotiate") == 0 ||
             _wcsicmp(m_pW3Context->GetUser()->GetAuthenticationType(), L"ntlm") == 0))
     {
-        if (m_pW3Context->GetUser()->GetPrimaryToken() != NULL &&
-            m_pW3Context->GetUser()->GetPrimaryToken() != INVALID_HANDLE_VALUE)
+        HANDLE impersonationToken = m_pW3Context->GetUser()->GetImpersonationToken();
+        if (impersonationToken != NULL &&
+            impersonationToken != INVALID_HANDLE_VALUE)
         {
             HANDLE hTargetTokenHandle = NULL;
-            RETURN_IF_FAILED(pServerProcess->SetWindowsAuthToken(m_pW3Context->GetUser()->GetPrimaryToken(),
+            RETURN_IF_FAILED(pServerProcess->SetWindowsAuthToken(impersonationToken,
                 &hTargetTokenHandle));
 
             //
