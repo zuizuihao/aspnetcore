@@ -5,14 +5,19 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging.Testing;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Microsoft.AspNetCore.Mvc.FunctionalTests
 {
-    public class RazorPagesWithBasePathTest : IClassFixture<MvcTestFixture<RazorPagesWebSite.StartupWithBasePath>>
+    public class RazorPagesWithBasePathTest : LoggedTest, IClassFixture<MvcTestFixture<RazorPagesWebSite.StartupWithBasePath>>
     {
-        public RazorPagesWithBasePathTest(MvcTestFixture<RazorPagesWebSite.StartupWithBasePath> fixture)
+        public RazorPagesWithBasePathTest(MvcTestFixture<RazorPagesWebSite.StartupWithBasePath> fixture, ITestOutputHelper output)
+            : base(output)
         {
+
+            fixture.LoggerFactory = LoggerFactory;
             Client = fixture.CreateDefaultClient();
         }
 

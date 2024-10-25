@@ -7,20 +7,30 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AspNetCore.Mvc.FunctionalTests
 {
     public class MvcTestFixture<TStartup> : WebApplicationFactory<TStartup>
         where TStartup : class
     {
+        public ILoggerFactory LoggerFactory { get; set; }
+
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder
                 .UseRequestCulture<TStartup>("en-GB", "en-US")
                 .UseEnvironment("Production")
-                .ConfigureServices(
-                    services => services.Configure<MvcCompatibilityOptions>(
-                        options => options.CompatibilityVersion = CompatibilityVersion.Version_2_1));
+                .ConfigureServices(services =>
+                {
+                    services.Configure<MvcCompatibilityOptions>(
+                        options => options.CompatibilityVersion = CompatibilityVersion.Version_2_1);
+
+                    if (LoggerFactory != null)
+                    {
+                        services.AddSingleton(LoggerFactory);
+                    }
+                });
         }
 
         protected override TestServer CreateServer(IWebHostBuilder builder)
